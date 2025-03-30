@@ -1,0 +1,30 @@
+# Entorno virtual
+venv/
+.env
+
+# Archivos de configuración
+config.ini
+
+# Base de datos
+*.db
+*.sqlite
+
+# Logs
+logs/*.log
+
+# Archivos generados
+*.pdf
+*.docx
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.idea/
+.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
