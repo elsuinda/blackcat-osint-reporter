@@ -53,6 +53,9 @@ def generate_word_report(report_data, output_path):
             doc.add_paragraph(report_data['user_id'], style='NormalStyle')
         
         # Add image if exists
+        if report_data.get('image_path') and not os.path.exists(report_data['image_path']):
+            raise FileNotFoundError(f"Image not found: {report_data['image_path']}")
+        
         if report_data.get('image_path') and os.path.exists(report_data['image_path']):
             doc.add_paragraph('Image:', style='SubtitleStyle')
             doc.add_picture(report_data['image_path'], width=Inches(4.0))
@@ -60,6 +63,9 @@ def generate_word_report(report_data, output_path):
         # Save document
         doc.save(output_path)
         return True
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return False
     except Exception as e:
         print(f"Error generating Word report: {e}")
         return False

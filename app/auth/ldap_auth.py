@@ -1,4 +1,5 @@
 import ldap
+import os  # Para usar variables de entorno
 from flask import current_app, flash
 from . import login_manager
 from app.models import User
@@ -14,15 +15,24 @@ def init_ldap(app):
 
 def ldap_connect():
     try:
-        ldap_conn = ldap.initialize(current_app.config['LDAP_SERVER'])
+        ldap_conn = ldap.initialize(os.getenv('LDAP_SERVER', current_app.config['LDAP_SERVER']))
         ldap_conn.simple_bind_s(
-            current_app.config['LDAP_BIND_DN'],
-            current_app.config['LDAP_BIND_PASSWORD']
+            os.getenv('LDAP_BIND_DN', current_app.config['LDAP_BIND_DN']),
+            os.getenv('LDAP_BIND_PASSWORD', current_app.config['LDAP_BIND_PASSWORD'])
         )
         return ldap_conn
-    except ldap.LDAPError as e:
-        current_app.logger.error(f"LDAP connection error: {e}")
+    except ldap.INVALID_CREDENTIALS:
+        current_app.logger.error("Invalid LDAP credentials")
         return None
+    except ldap.SERVER_DOWN:
+        current_app.logger.error("LDAP server is down")
+        return None
+    except Exception as e:
+        current_app.logger.error(f"Unexpected LDAP error: {e}")
+        return None
+    finally:
+        if 'ldap_conn' in locals():
+            ldap_conn.unbind()
 
 def ldap_authenticate(username, password):
     ldap_conn = ldap_connect()

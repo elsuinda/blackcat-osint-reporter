@@ -28,3 +28,11 @@ __pycache__/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Claves privadas
+*.key
+*.pem
+*.pub
+
+# Archivos multimedia
+media/
