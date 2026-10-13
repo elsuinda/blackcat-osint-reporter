@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Nuevo perfil' if nuevo else 'Editar perfil' }} · BLACKCAT{% endblock %}
+{% block contenido %}
+<h1>{{ 'Nuevo perfil de destinatario' if nuevo else 'Editar perfil' }}</h1>
+
+<form method="post" class="form">
+  {{ form.hidden_tag() }}
+  <div class="fila">
+    <div class="campo">{{ form.nombre.label }} {{ form.nombre(class="inp") }}
+      {% for e in form.nombre.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+    <div class="campo">{{ form.clasificacion.label }} {{ form.clasificacion(class="inp") }}</div>
+  </div>
+  <div class="campo">{{ form.descripcion.label }} {{ form.descripcion(class="inp") }}</div>
+  <div class="fila">
+    <div class="campo">{{ form.encabezado.label }} {{ form.encabezado(class="inp") }}</div>
+    <div class="campo">{{ form.pie.label }} {{ form.pie(class="inp") }}</div>
+  </div>
+  <div class="fila">
+    <div class="campo">{{ form.sensibilidad_max.label }} {{ form.sensibilidad_max(class="inp") }}</div>
+    <div class="campo">{{ form.confianza_min.label }} {{ form.confianza_min(class="inp") }}</div>
+  </div>
+
+  <fieldset class="chks">
+    <legend>Secciones a incluir</legend>
+    <label>{{ form.incluir_resumen() }} {{ form.incluir_resumen.label.text }}</label>
+    <label>{{ form.incluir_objetivo() }} {{ form.incluir_objetivo.label.text }}</label>
+    <label>{{ form.incluir_autorizacion() }} {{ form.incluir_autorizacion.label.text }}</label>
+    <label>{{ form.incluir_hallazgos() }} {{ form.incluir_hallazgos.label.text }}</label>
+    <label>{{ form.incluir_fuentes() }} {{ form.incluir_fuentes.label.text }}</label>
+    <label>{{ form.incluir_url() }} {{ form.incluir_url.label.text }}</label>
+    <label>{{ form.incluir_confianza() }} {{ form.incluir_confianza.label.text }}</label>
+    <label>{{ form.incluir_metadatos() }} {{ form.incluir_metadatos.label.text }}</label>
+    <label>{{ form.incluir_hashes() }} {{ form.incluir_hashes.label.text }}</label>
+    <label>{{ form.incluir_adjuntos() }} {{ form.incluir_adjuntos.label.text }}</label>
+  </fieldset>
+
+  <div class="acciones">
+    {{ form.submit(class="btn btn-verde") }}
+    <a class="btn" href="{{ url_for('perfiles') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

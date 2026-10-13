@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}{{ caso.codigo }} · BLACKCAT{% endblock %}
+{% block contenido %}
+<div class="encab">
+  <div>
+    <h1>{{ caso.codigo }} <span class="clasif">{{ caso.clasificacion }}</span></h1>
+    <p class="sub">{{ caso.titulo }}</p>
+  </div>
+  <div class="acciones">
+    <a class="btn" href="{{ url_for('caso_editar', caso_id=caso.id) }}">Editar</a>
+    <form method="post" action="{{ url_for('caso_eliminar', caso_id=caso.id) }}" class="confirmar" data-msg="Eliminar el caso {{ caso.codigo }} y todos sus hallazgos?">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-naranja" type="submit">Eliminar</button>
+    </form>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="meta">
+    <span><b>Estado:</b> {{ caso.estado|replace('_',' ') }}</span>
+    <span><b>Investigador:</b> {{ caso.investigador or '—' }}</span>
+    <span><b>Creado:</b> {{ caso.creado.strftime('%Y-%m-%d') if caso.creado }}</span>
+  </div>
+  {% if caso.descripcion %}<h3>Resumen</h3><p class="texto">{{ caso.descripcion }}</p>{% endif %}
+  {% if caso.objetivo %}<h3>Objetivo / alcance</h3><p class="texto">{{ caso.objetivo }}</p>{% endif %}
+  {% if caso.autorizacion %}<h3>Base de autorizacion</h3><p class="texto">{{ caso.autorizacion }}</p>{% endif %}
+</div>
+
+<div class="encab">
+  <h2>Hallazgos ({{ caso.hallazgos|length }})</h2>
+  <a class="btn btn-verde" href="{{ url_for('hallazgo_nuevo', caso_id=caso.id) }}">+ Nuevo hallazgo</a>
+</div>
+
+{% if caso.hallazgos %}
+  {% for h in caso.hallazgos %}
+  <div class="hallazgo">
+    <div class="h-cab">
+      <span class="h-num">#{{ h.numero }}</span>
+      <span class="h-tit">{{ h.titulo }}</span>
+      <span class="badge">{{ h.categoria|replace('_',' ') }}</span>
+      <span class="conf conf-{{ h.confianza }}">{{ h.confianza|replace('_',' ') }}</span>
+      {% if h.sensibilidad != 'normal' %}<span class="sens">{{ h.sensibilidad }}</span>{% endif %}
+    </div>
+    {% if h.contenido %}<p class="texto">{{ h.contenido }}</p>{% endif %}
+    <div class="h-meta">
+      {% if h.fuente %}<span>Fuente: {{ h.fuente }}</span>{% endif %}
+      {% if h.url %}<span>URL: <a href="{{ h.url }}" rel="noopener noreferrer">{{ h.url }}</a></span>{% endif %}
+      {% if h.fecha_dato %}<span>Dato: {{ h.fecha_dato.strftime('%Y-%m-%d') }}</span>{% endif %}
+      {% if h.autor %}<span>Por: {{ h.autor }}</span>{% endif %}
+      {% if h.adjuntos %}<span>Adjuntos: {{ h.adjuntos|length }}</span>{% endif %}
+    </div>
+    <div class="h-acc">
+      <a href="{{ url_for('hallazgo_editar', hallazgo_id=h.id) }}">editar</a>
+      <form method="post" action="{{ url_for('hallazgo_eliminar', hallazgo_id=h.id) }}" class="confirmar" data-msg="Eliminar el hallazgo #{{ h.numero }}?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="enlace">eliminar</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+<p class="vacio">Sin hallazgos todavia.</p>
+{% endif %}
+
+<div class="panel panel-export">
+  <h2>Generar informe</h2>
+  <p class="ayuda">Elegi el <b>perfil de destinatario</b>: define que secciones y que nivel de detalle lleva el informe.</p>
+  <form method="post" action="{{ url_for('caso_exportar', caso_id=caso.id) }}" class="form-inline">
+    {{ export_form.hidden_tag() }}
+    <div class="campo">{{ export_form.perfil_id.label }} {{ export_form.perfil_id(class="inp") }}</div>
+    <div class="campo">{{ export_form.formato.label }} {{ export_form.formato(class="inp") }}</div>
+    {{ export_form.submit(class="btn btn-verde") }}
+  </form>
+</div>
+{% endblock %}

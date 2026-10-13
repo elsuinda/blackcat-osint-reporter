@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Actividad · BLACKCAT{% endblock %}
+{% block contenido %}
+<h1>Registro de actividad</h1>
+<p class="ayuda">Ultimas 200 acciones. Util cuando varias personas colaboran en la red local.</p>
+{% if registros %}
+<table class="tabla">
+  <thead><tr><th>Fecha</th><th>Actor</th><th>Accion</th><th>Detalle</th><th>IP</th></tr></thead>
+  <tbody>
+  {% for r in registros %}
+    <tr>
+      <td>{{ r.creado.strftime('%Y-%m-%d %H:%M') if r.creado }}</td>
+      <td>{{ r.actor }}</td>
+      <td>{{ r.accion }}</td>
+      <td>{{ r.detalle }}</td>
+      <td>{{ r.ip }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">Sin actividad registrada.</p>
+{% endif %}
+{% endblock %}

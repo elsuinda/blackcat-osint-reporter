@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Perfiles de destinatario · BLACKCAT{% endblock %}
+{% block contenido %}
+<div class="encab">
+  <h1>Perfiles de destinatario</h1>
+  <a class="btn btn-verde" href="{{ url_for('perfil_nuevo') }}">+ Nuevo perfil</a>
+</div>
+<p class="ayuda">Cada perfil controla como se arma el informe para un publico: que secciones lleva,
+que nivel de detalle y hasta que sensibilidad/confianza incluye.</p>
+
+<div class="cards">
+{% for p in perfiles %}
+  <div class="card">
+    <h3>{{ p.nombre }} {% if p.es_predefinido %}<span class="chip">base</span>{% endif %}</h3>
+    <p class="ayuda">{{ p.descripcion }}</p>
+    <ul class="mini">
+      <li>Clasif.: <b>{{ p.clasificacion }}</b></li>
+      <li>Sensibilidad hasta: <b>{{ p.sensibilidad_max }}</b></li>
+      <li>Confianza desde: <b>{{ p.confianza_min|replace('_',' ') }}</b></li>
+      <li>Fuentes: {{ 'si' if p.incluir_fuentes else 'no' }} · Hashes: {{ 'si' if p.incluir_hashes else 'no' }}</li>
+    </ul>
+    <div class="h-acc">
+      <a href="{{ url_for('perfil_editar', perfil_id=p.id) }}">editar</a>
+      {% if not p.es_predefinido %}
+      <form method="post" action="{{ url_for('perfil_eliminar', perfil_id=p.id) }}" class="confirmar" data-msg="Eliminar el perfil {{ p.nombre }}?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="enlace">eliminar</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

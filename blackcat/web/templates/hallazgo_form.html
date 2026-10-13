@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Nuevo hallazgo' if nuevo else 'Editar hallazgo' }} · BLACKCAT{% endblock %}
+{% block contenido %}
+<h1>{{ 'Nuevo hallazgo' if nuevo else 'Editar hallazgo' }} <small>· {{ caso.codigo }}</small></h1>
+
+<form method="post" enctype="multipart/form-data" class="form">
+  {{ form.hidden_tag() }}
+  <div class="campo">{{ form.titulo.label }} {{ form.titulo(class="inp") }}
+    {% for e in form.titulo.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+  <div class="fila">
+    <div class="campo">{{ form.categoria.label }} {{ form.categoria(class="inp") }}</div>
+    <div class="campo">{{ form.confianza.label }} {{ form.confianza(class="inp") }}</div>
+    <div class="campo">{{ form.sensibilidad.label }} {{ form.sensibilidad(class="inp") }}
+      <small class="ayuda">"Sensible/interno" se oculta en perfiles para publico externo.</small></div>
+  </div>
+  <div class="fila">
+    <div class="campo">{{ form.fuente.label }} {{ form.fuente(class="inp") }}</div>
+    <div class="campo">{{ form.fecha_dato.label }} {{ form.fecha_dato(class="inp") }}</div>
+  </div>
+  <div class="campo">{{ form.url.label }} {{ form.url(class="inp") }}
+    {% for e in form.url.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+  <div class="campo">{{ form.contenido.label }} {{ form.contenido(class="inp", rows=6) }}</div>
+  <div class="campo">{{ form.imagen.label }} {{ form.imagen(class="inp") }}
+    {% for e in form.imagen.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+  <div class="acciones">
+    {{ form.submit(class="btn btn-verde") }}
+    <a class="btn" href="{{ url_for('caso_detalle', caso_id=caso.id) }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

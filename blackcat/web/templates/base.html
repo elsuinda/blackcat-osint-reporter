@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}BLACKCAT{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/blackcat.css') }}">
+</head>
+<body>
+  <header class="barra">
+    <a class="marca" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="logo">
+      <span>BLACK<b>CAT</b></span>
+    </a>
+    <nav>
+      <a href="{{ url_for('index') }}">Casos</a>
+      <a href="{{ url_for('perfiles') }}">Perfiles</a>
+      {% if BC_COMPARTIDO %}<a href="{{ url_for('actividad') }}">Actividad</a>{% endif %}
+    </nav>
+    <div class="estado">
+      {% if BC_COMPARTIDO %}<span class="chip chip-comp">COMPARTIDO · LAN</span>{% else %}<span class="chip">LOCAL</span>{% endif %}
+      <span class="actor">{{ BC_ACTOR }}</span>
+      {% if BC_COMPARTIDO %}<a class="salir" href="{{ url_for('salir') }}">salir</a>{% endif %}
+    </div>
+  </header>
+
+  <main>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% if mensajes %}
+        <div class="flashes">
+        {% for cat, msg in mensajes %}
+          <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer>
+    <span>BLACKCAT v{{ BC_VERSION }}</span>
+    <span>El Suinda @v@ · les petites cellules grises</span>
+  </footer>
+  <script src="{{ url_for('static', filename='js/blackcat.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceso · BLACKCAT</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/blackcat.css') }}">
+</head>
+<body class="acceso-body">
+  <div class="acceso-caja">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="logo-grande">
+    <h1>BLACK<b>CAT</b></h1>
+    <p class="ayuda">Espacio colaborativo en red local. Ingresa tu nombre y la clave que te compartieron.</p>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in mensajes %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    <form method="post" class="form">
+      {{ form.hidden_tag() }}
+      <div class="campo">{{ form.nombre.label }} {{ form.nombre(class="inp") }}</div>
+      <div class="campo">{{ form.token.label }} {{ form.token(class="inp") }}</div>
+      {{ form.submit(class="btn btn-verde ancho") }}
+    </form>
+    <p class="aviso">Lo que cargues queda registrado con tu nombre. Trabaja solo sobre casos autorizados.</p>
+  </div>
+</body>
+</html>

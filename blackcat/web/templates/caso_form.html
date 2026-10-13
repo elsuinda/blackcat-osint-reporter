@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Nuevo caso' if nuevo else 'Editar caso' }} · BLACKCAT{% endblock %}
+{% block contenido %}
+<h1>{{ 'Nuevo caso' if nuevo else 'Editar caso ' ~ caso.codigo }}</h1>
+
+<form method="post" class="form">
+  {{ form.hidden_tag() }}
+  <div class="campo">{{ form.titulo.label }} {{ form.titulo(class="inp") }}
+    {% for e in form.titulo.errors %}<span class="err">{{ e }}</span>{% endfor %}</div>
+  <div class="fila">
+    <div class="campo">{{ form.investigador.label }} {{ form.investigador(class="inp") }}</div>
+    <div class="campo">{{ form.clasificacion.label }} {{ form.clasificacion(class="inp") }}</div>
+    <div class="campo">{{ form.estado.label }} {{ form.estado(class="inp") }}</div>
+  </div>
+  <div class="campo">{{ form.descripcion.label }} {{ form.descripcion(class="inp", rows=4) }}</div>
+  <div class="campo">{{ form.objetivo.label }} {{ form.objetivo(class="inp", rows=3) }}</div>
+  <div class="campo">{{ form.autorizacion.label }} {{ form.autorizacion(class="inp", rows=3) }}
+    <small class="ayuda">Base legal/permiso del trabajo. Clave para el "etico" del hacking etico.</small></div>
+  <div class="acciones">
+    {{ form.submit(class="btn btn-verde") }}
+    <a class="btn" href="{{ url_for('index') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

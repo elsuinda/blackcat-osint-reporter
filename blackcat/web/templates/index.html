@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Casos · BLACKCAT{% endblock %}
+{% block contenido %}
+<div class="encab">
+  <h1>Casos de investigacion</h1>
+  <a class="btn btn-verde" href="{{ url_for('caso_nuevo') }}">+ Nuevo caso</a>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="num">{{ casos|length }}</span><span>casos</span></div>
+  <div class="stat"><span class="num">{{ total_hallazgos }}</span><span>hallazgos</span></div>
+</div>
+
+{% if casos %}
+<table class="tabla">
+  <thead><tr><th>Codigo</th><th>Titulo</th><th>Estado</th><th>Clasif.</th><th>Hallazgos</th><th>Creado</th></tr></thead>
+  <tbody>
+  {% for c in casos %}
+    <tr>
+      <td><a href="{{ url_for('caso_detalle', caso_id=c.id) }}">{{ c.codigo }}</a></td>
+      <td>{{ c.titulo }}</td>
+      <td><span class="badge badge-{{ c.estado }}">{{ c.estado|replace('_',' ') }}</span></td>
+      <td><span class="clasif">{{ c.clasificacion }}</span></td>
+      <td>{{ c.hallazgos|length }}</td>
+      <td>{{ c.creado.strftime('%Y-%m-%d') if c.creado }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">Todavia no hay casos. Crea el primero para empezar a recolectar hallazgos.</p>
+{% endif %}
+{% endblock %}

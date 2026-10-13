@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# =====================================================================
+#  BLACKCAT - control de la estacion de informes OSINT
+#  Uso:
+#    blackcat start [--share] [--port N]   inicia el servidor local
+#    blackcat stop                         lo detiene
+#    blackcat status                       estado
+#    blackcat restart [--share] [--port N] reinicia
+#
+#  --share  expone la app en la red local (con clave de sesion) para
+#           trabajo colaborativo. Sin --share corre solo en 127.0.0.1.
+#  El Suinda @v@  -  les petites cellules grises
+# =====================================================================
+set -euo pipefail
+
+# --- localizar la instalacion (resuelve symlinks) ---
+FUENTE="${BASH_SOURCE[0]}"
+while [ -h "$FUENTE" ]; do
+  DIR="$(cd -P "$(dirname "$FUENTE")" && pwd)"
+  FUENTE="$(readlink "$FUENTE")"
+  [[ "$FUENTE" != /* ]] && FUENTE="$DIR/$FUENTE"
+done
+BIN_DIR="$(cd -P "$(dirname "$FUENTE")" && pwd)"
+APP_DIR="$(cd -P "$BIN_DIR/.." && pwd)"
+
+PY="$APP_DIR/.venv/bin/python"
+[ -x "$PY" ] || PY="$(command -v python3 || true)"
+
+BASE="${BLACKCAT_HOME:-$HOME/.blackcat}"
+PIDFILE="$BASE/blackcat.pid"
+LOG="$BASE/blackcat.log"
+RUNTIME="$BASE/runtime.json"
+mkdir -p "$BASE"
+
+# --- colores (estetica Hercule/BLACKCAT) ---
+G="\e[38;2;57;255;20m"; D="\e[38;2;31;168;11m"; O="\e[38;2;255;106;0m"
+T="\e[38;2;200;214;200m"; R="\e[0m"
+ok(){ printf "  ${G}[ ok ]${R} ${T}%b${R}\n" "$1"; }
+info(){ printf "  ${D}[ .. ]${R} ${T}%b${R}\n" "$1"; }
+warn(){ printf "  ${O}[ !! ]${R} ${O}%b${R}\n" "$1"; }
+
+_vivo(){ [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE" 2>/dev/null)" 2>/dev/null; }
+_puerto(){ "$PY" -c "import json;print(json.load(open('$RUNTIME')).get('puerto',8733))" 2>/dev/null || echo 8733; }
+_url(){ "$PY" -c "import json;print(json.load(open('$RUNTIME')).get('pid_url',''))" 2>/dev/null || echo ""; }
+_token(){ "$PY" -c "import json;print(json.load(open('$RUNTIME')).get('token',''))" 2>/dev/null || echo ""; }
+
+start(){
+  if _vivo; then warn "BLACKCAT ya esta corriendo (PID $(cat "$PIDFILE"))."; status; return 0; fi
+  local args=() share=0 abrir="--open"
+  while [ $# -gt 0 ]; do case "$1" in
+    --share) share=1; args+=(--share); abrir=""; shift ;;
+    --port) args+=(--port "$2"); shift 2 ;;
+    *) shift ;;
+  esac; done
+  [ -n "$abrir" ] && args+=("$abrir")
+
+  printf "\n  ${G}B L A C K C A T${R}  ${O}- informes OSINT -${R}\n"
+  info "iniciando servidor..."
+  cd "$APP_DIR"
+  nohup "$PY" -m blackcat.servidor "${args[@]}" >> "$LOG" 2>&1 &
+  echo $! > "$PIDFILE"
+  local p; sleep 1; p="$(_puerto)"
+  for _ in $(seq 1 20); do
+    if curl -fs "http://127.0.0.1:$p/salud" >/dev/null 2>&1; then break; fi
+    _vivo || { warn "el servidor no arranco; revisa $LOG"; return 1; }
+    sleep 0.4
+  done
+  ok "BLACKCAT en marcha (PID $(cat "$PIDFILE"))."
+  if [ "$share" -eq 1 ]; then
+    warn "modo COMPARTIDO (red local)"
+    info "URL para colegas : $(_url)"
+    info "clave de sesion  : $(_token)"
+  else
+    info "URL : $(_url)"
+  fi
+  printf "  ${D}-- les petites cellules grises${R}\n\n"
+}
+
+stop(){
+  if ! _vivo; then warn "BLACKCAT no estaba corriendo."; rm -f "$PIDFILE"; return 0; fi
+  local pid; pid="$(cat "$PIDFILE")"
+  info "deteniendo (PID $pid)..."
+  kill "$pid" 2>/dev/null || true
+  for _ in $(seq 1 15); do kill -0 "$pid" 2>/dev/null || break; sleep 0.3; done
+  kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
+  rm -f "$PIDFILE"
+  ok "BLACKCAT detenido."
+}
+
+status(){
+  if _vivo; then
+    local p; p="$(_puerto)"
+    if curl -fs "http://127.0.0.1:$p/salud" >/dev/null 2>&1; then
+      ok "corriendo (PID $(cat "$PIDFILE")) — $(_url)"
+    else
+      warn "proceso vivo (PID $(cat "$PIDFILE")) pero no responde aun."
+    fi
+  else
+    info "detenido."
+  fi
+}
+
+case "${1:-}" in
+  start) shift; start "$@" ;;
+  stop) stop ;;
+  status) status ;;
+  restart) shift; stop; sleep 1; start "$@" ;;
+  *) echo "Uso: blackcat {start [--share] [--port N] | stop | status | restart}"; exit 1 ;;
+esac

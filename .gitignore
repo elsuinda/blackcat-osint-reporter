@@ -1,0 +1,42 @@
+# Entorno e instalacion
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Estado de usuario / datos (NUNCA se versiona)
+*.db
+*.sqlite
+*.sqlite3
+.blackcat/
+instance/
+
+# Secretos y credenciales (defensa en profundidad)
+*.key
+*.pem
+*.ppk
+*.p12
+id_rsa*
+id_ed25519*
+id_ecdsa*
+*_rsa
+*_ed25519
+githubkey*
+.env
+.env.*
+config.json
+secrets*
+*.token
+
+# Salidas generadas
+*.log
+informes/
+subidas/
+
+# Editores / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

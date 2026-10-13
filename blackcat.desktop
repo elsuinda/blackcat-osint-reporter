@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=BLACKCAT
+GenericName=Informes OSINT
+Comment=Estacion local de informes OSINT (Hercule)
+Exec=blackcat start
+Icon=blackcat
+Terminal=false
+Categories=Network;Security;Office;
+Keywords=osint;informe;hercule;blackcat;
